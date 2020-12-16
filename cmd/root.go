@@ -1,4 +1,5 @@
 /*
+Package cmd includes all arguments and flags for the tool
 Copyright © 2020 eRaMvn pdtvnhcm@gmail.com
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,6 +27,14 @@ import (
 )
 
 var cfgFile string
+var workspaceName string
+var organizationName string
+
+// WorkspaceVar sets the workspace variable name the tool will look for
+const WorkspaceVar = "TF_CLOUD_WS_NAME"
+
+// OrgVar sets the organization variable name the tool will look for
+const OrgVar = "TF_CLOUD_ORG_NAME"
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{

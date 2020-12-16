@@ -1,3 +1,4 @@
+exclude: test
 repos:
   - repo: git://github.com/dnephin/pre-commit-golang
     rev: master
@@ -10,9 +11,8 @@ repos:
         args: [-over=15]
       - id: validate-toml
       - id: no-go-testing
-      - id: gometalinter
       - id: golangci-lint
+        args: [--skip-dirs=test]
       - id: go-critic
       - id: go-unit-tests
       - id: go-build
-      - id: go-mod-tidy

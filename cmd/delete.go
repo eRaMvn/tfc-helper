@@ -1,18 +1,3 @@
-/*
-Copyright © 2020 eRaMvn pdtvnhcm@gmail.com
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
 package cmd
 
 import (
@@ -35,9 +20,26 @@ tfc-help delete --var some_variable=some_value -w ws-K33Rp -o big-corp
 tfc-help delete --var some_variable -w ws-K33Rp -o big-corp
 tfc-help delete -a -w ws-K33Rp -o big-corp`,
 	Run: func(cmd *cobra.Command, args []string) {
+		// Try to get workspace value from environment variable
+		// var workspaceName string
+		wsName := os.Getenv(WorkspaceVar)
+		if wsName != "" {
+			workspaceName = wsName
+		} else {
+			workspaceName, _ = cmd.Flags().GetString("workspace")
+		}
+
+		// Try to get organization value from environment variable
+		// var organizationName string
+		orgName := os.Getenv(OrgVar)
+
+		if orgName != "" {
+			organizationName = orgName
+		} else {
+			organizationName, _ = cmd.Flags().GetString("organization")
+		}
+
 		keyPairs, _ := cmd.Flags().GetStringSlice("var")
-		workspaceName, _ := cmd.Flags().GetString("workspace")
-		organizationName, _ := cmd.Flags().GetString("organization")
 		allVar, _ := cmd.Flags().GetBool("all")
 
 		workspaceID := helper.GetWorkspaceID(organizationName, workspaceName)

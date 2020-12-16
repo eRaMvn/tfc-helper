@@ -17,6 +17,7 @@ var client *tfe.Client
 var err error
 var ctx context.Context
 
+// NewVariable is a struct that has all necessary components for variable update/creation
 type NewVariable struct {
 	ID          string           `jsonapi:"primary,vars"`
 	Key         string           `jsonapi:"attr,key"`
@@ -27,10 +28,12 @@ type NewVariable struct {
 	Sensitive   bool             `jsonapi:"attr,sensitive"`
 }
 
+// Config struct has the structure of the terraformrc file
 type Config struct {
 	Credentials CredentialConfig `hcl:"credentials,block"`
 }
 
+// CredentialConfig defines the component of the credentials block in terraformrc file
 type CredentialConfig struct {
 	App   string `hcl:"app,label"`
 	Token string `hcl:"token"`
@@ -79,7 +82,7 @@ func ListAllWorkspaces(organizationName string) []*tfe.Workspace {
 		fmt.Println("Organization not found or incorrect! Please set the environment variable or the flag value again")
 		os.Exit(1)
 	}
-	return *&workspaceList.Items
+	return workspaceList.Items
 }
 
 // GetWorkspaceID gets the workspace id in the list of workspace in the organization
@@ -103,7 +106,7 @@ func ListAllVariables(workspaceID string) []*tfe.Variable {
 	if err != nil {
 		log.Fatal(err)
 	}
-	return *&variableList.Items
+	return variableList.Items
 }
 
 // GetVar gets the variable that matches the variable name in the list of variable
@@ -149,10 +152,15 @@ func UpdateVariable(workspaceID string, newVariable NewVariable) {
 func DeleteVariable(workspaceID string, variableID string, all bool) {
 	if all {
 		for _, variable := range ListAllVariables(workspaceID) {
-			client.Variables.Delete(ctx, workspaceID, variable.ID)
+			if err := client.Variables.Delete(ctx, workspaceID, variable.ID); err != nil {
+				fmt.Println("Error deleting variable. Please try again!")
+			}
 		}
-	} else {
-		client.Variables.Delete(ctx, workspaceID, variableID)
+		return
+	}
+
+	if err := client.Variables.Delete(ctx, workspaceID, variableID); err != nil {
+		fmt.Println("Error deleting variable. Please try again!")
 	}
 }
 
