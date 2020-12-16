@@ -15,5 +15,6 @@
 # vendor/
 
 test
+bin
 tfc-helper
 .vscode
