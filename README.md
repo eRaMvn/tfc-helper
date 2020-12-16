@@ -4,18 +4,23 @@ tfc-helper is a CLI tool to help with updating variables in Terraform Cloud or T
 
 ## Pre-requisites
 
-The tool will need:
+You will need:
 
 1. Linux Environment (Windows Environment is under development)
 2. Terraform Cloud API key (which can be found under [setting](https://app.terraform.io/app/settings/tokens))
-3. Organization name where workspace is created. Organization name can be passed with -o flag (see samples below) or through env variable `TF_CLOUD_ORG_NAME`
-4. Workspace name where variables are created. Workspace name can be passed with -w flag (see samples below) or through env variable `TF_CLOUD_WS_NAME`
+3. Configure `terraformrc` file according to [this](https://www.terraform.io/docs/commands/cli-config.html). `terraformrc` file should be under your home directory.
+
+   1. Instead of using `terraformrc` file. You can use the following environment variable with
+`
+export TF_CLOUD_TOKEN=[your_token]
+`
+
+1. Organization name where workspace is created. Organization name can be passed with -o flag (see samples below) or through env variable `TF_CLOUD_ORG_NAME`
+2. Workspace name where variables are created. Workspace name can be passed with -w flag (see samples below) or through env variable `TF_CLOUD_WS_NAME`
 
 ## Installing
 
-`
-git clone https://github.com/eRaMvn/tfc-helper.git
-`
+`git clone https://github.com/eRaMvn/tfc-helper.git`
 
 Build executable
 
