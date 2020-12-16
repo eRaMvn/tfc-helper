@@ -35,6 +35,11 @@ jobs:
       - name: Check out source code
         uses: actions/checkout@v2
 
+      - name: Set up Go 1.x
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.15.x
+
       - name: Set up python environment for pre-commit
         uses: actions/setup-python@v2
         with:
@@ -46,4 +51,10 @@ jobs:
           pip install pre-commit
 
       - name: Run pre-commit
-        run: pre-commit run --all-files
+        run: |
+          go get -u golang.org/x/lint/golint
+          go get github.com/fzipp/gocyclo/cmd/gocyclo
+          go get github.com/golangci/golangci-lint/cmd/golangci-lint@v1.33.0
+          go get -v -u github.com/go-critic/go-critic/cmd/gocritic
+
+          pre-commit run --all-files
