@@ -45,8 +45,9 @@ tfc-help delete -a -w ws-K33Rp -o big-corp`,
 		workspaceID := helper.GetWorkspaceID(organizationName, workspaceName)
 
 		if allVar {
+			emptyID := ""
 			// Delete all variables in the workspace
-			helper.DeleteVariable(workspaceID, "", allVar)
+			helper.DeleteVariables(workspaceID, emptyID, allVar)
 		} else {
 			valueToSend := helper.GetCommandValues(keyPairs)
 			// Loop through all values passed from the command line
@@ -56,11 +57,11 @@ tfc-help delete -a -w ws-K33Rp -o big-corp`,
 
 				/* If error, meaning the variable does not exist, print out error message */
 				if error != nil {
-					fmt.Println("Variable does not exist. Please use tfc-help delete command to delete the variable!")
+					fmt.Println("Variable does not exist. Cannot delete the variable!")
 					os.Exit(1)
 					// When variable already exists, proceed to delete the variable
 				} else {
-					helper.DeleteVariable(workspaceID, variable.ID, false)
+					helper.DeleteVariables(workspaceID, variable.ID, false)
 				}
 			}
 		}

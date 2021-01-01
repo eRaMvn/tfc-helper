@@ -44,7 +44,6 @@ var rootCmd = &cobra.Command{
 credentials for the provider in order to run. tfc-help was created to help
 automate that process.
 Example:
-tfc-help create --var some_variable=some_value -w ws-K33Rp -o big-corp
 tfc-help update --var some_variable=some_value -d "This variable is just an example" -w ws-K33Rp -o big-corp
 tfc-help delete --var some_variable -w ws-K33Rp -o big-corp
 

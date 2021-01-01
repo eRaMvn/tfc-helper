@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"sync"
 
 	"github.com/hashicorp/go-tfe"
 	"github.com/hashicorp/hcl/v2/hclsimple"
@@ -120,7 +121,9 @@ func GetVar(workspaceID string, varName string) (variable *tfe.Variable, err err
 }
 
 // CreateVariable creates a variable
-func CreateVariable(workspaceID string, newVariable NewVariable) {
+func CreateVariable(workspaceID string, newVariable NewVariable, wg *sync.WaitGroup) {
+	defer wg.Done()
+
 	_, err := client.Variables.Create(ctx, workspaceID, tfe.VariableCreateOptions{
 		Key:         tfe.String(newVariable.Key),
 		Value:       tfe.String(newVariable.Value),
@@ -135,7 +138,9 @@ func CreateVariable(workspaceID string, newVariable NewVariable) {
 }
 
 // UpdateVariable updates a variable given the variable id
-func UpdateVariable(workspaceID string, newVariable NewVariable) {
+func UpdateVariable(workspaceID string, newVariable NewVariable, wg *sync.WaitGroup) {
+	defer wg.Done()
+
 	_, err := client.Variables.Update(ctx, workspaceID, newVariable.ID, tfe.VariableUpdateOptions{
 		Value:       tfe.String(newVariable.Value),
 		Description: tfe.String(newVariable.Description),
@@ -148,26 +153,36 @@ func UpdateVariable(workspaceID string, newVariable NewVariable) {
 	}
 }
 
-// DeleteVariable deletes a variable or all variables
-func DeleteVariable(workspaceID string, variableID string, all bool) {
+// DeleteVar deletes a single variable
+func DeleteVar(workspaceID string, variableID string, wg *sync.WaitGroup) {
+	defer wg.Done()
+	message := fmt.Sprintf("Error deleting variable id %s. Please try again!", variableID)
+	if err := client.Variables.Delete(ctx, workspaceID, variableID); err != nil {
+		fmt.Println(message)
+	}
+}
+
+// DeleteVariables deletes a variable or all variables
+func DeleteVariables(workspaceID string, variableID string, all bool) {
+	var wg sync.WaitGroup
+
 	if all {
 		for _, variable := range ListAllVariables(workspaceID) {
-			if err := client.Variables.Delete(ctx, workspaceID, variable.ID); err != nil {
-				fmt.Println("Error deleting variable. Please try again!")
-			}
+			wg.Add(1)
+			go DeleteVar(workspaceID, variable.ID, &wg)
 		}
 		return
 	}
 
-	if err := client.Variables.Delete(ctx, workspaceID, variableID); err != nil {
-		fmt.Println("Error deleting variable. Please try again!")
-	}
+	wg.Add(1)
+	go DeleteVar(workspaceID, variableID, &wg)
+	wg.Wait()
 }
 
 // RecreateVariable deletes a variable and create it again
-func RecreateVariable(workspaceID string, variable NewVariable) {
-	DeleteVariable(workspaceID, variable.ID, false)
-	CreateVariable(workspaceID, variable)
+func RecreateVariable(workspaceID string, variable NewVariable, wg *sync.WaitGroup) {
+	DeleteVariables(workspaceID, variable.ID, false)
+	CreateVariable(workspaceID, variable, wg)
 }
 
 func init() {

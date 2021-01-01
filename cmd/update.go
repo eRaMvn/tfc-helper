@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"sync"
 	"tfc-helper/helper"
 
 	"github.com/hashicorp/go-tfe"
@@ -94,8 +95,12 @@ tfc-help update --env -w ws-K33Rp -o big-corp`,
 			valueToSend = helper.GetCommandValues(keyPairs)
 		}
 
+		var wg sync.WaitGroup
+
 		// Loop through all values passed from the command line
 		for newVariableName, newVariableValue := range valueToSend {
+			wg.Add(1)
+
 			// Try to get the variable ID
 			variable, error := helper.GetVar(workspaceID, newVariableName)
 
@@ -113,7 +118,7 @@ tfc-help update --env -w ws-K33Rp -o big-corp`,
 					Sensitive:   sensitive,
 				}
 
-				helper.CreateVariable(workspaceID, newVariable)
+				go helper.CreateVariable(workspaceID, newVariable, &wg)
 				// When variable already exists, proceed to update the variable
 			} else {
 				// originalVariable keeps the value and description given to a variable but changes the hcl and encryption type
@@ -141,9 +146,9 @@ tfc-help update --env -w ws-K33Rp -o big-corp`,
 				// If -r flag is set, proceed to recreate the variable
 				if shouldReplace {
 					if keepValue {
-						helper.RecreateVariable(workspaceID, originalVariable)
+						go helper.RecreateVariable(workspaceID, originalVariable, &wg)
 					} else {
-						helper.RecreateVariable(workspaceID, newVariable)
+						go helper.RecreateVariable(workspaceID, newVariable, &wg)
 					}
 
 				} else {
@@ -161,14 +166,15 @@ Example commands:
 
 					// If -k flag is set, keep the original value of the variable
 					if keepValue {
-						helper.UpdateVariable(workspaceID, originalVariable)
+						go helper.UpdateVariable(workspaceID, originalVariable, &wg)
 					} else {
 						// TODO: Create a way to keep the description the same but the value can be different
-						helper.UpdateVariable(workspaceID, newVariable)
+						go helper.UpdateVariable(workspaceID, newVariable, &wg)
 					}
 				}
 			}
 		}
+		wg.Wait()
 	},
 }
 
