@@ -122,8 +122,6 @@ func GetVar(workspaceID string, varName string) (variable *tfe.Variable, err err
 
 // CreateVariable creates a variable
 func CreateVariable(workspaceID string, newVariable NewVariable, wg *sync.WaitGroup) {
-	defer wg.Done()
-
 	_, err := client.Variables.Create(ctx, workspaceID, tfe.VariableCreateOptions{
 		Key:         tfe.String(newVariable.Key),
 		Value:       tfe.String(newVariable.Value),
@@ -132,15 +130,16 @@ func CreateVariable(workspaceID string, newVariable NewVariable, wg *sync.WaitGr
 		HCL:         tfe.Bool(newVariable.HCL),
 		Sensitive:   tfe.Bool(newVariable.Sensitive),
 	})
+
 	if err != nil {
 		log.Fatal(err)
+	} else {
+		wg.Done()
 	}
 }
 
 // UpdateVariable updates a variable given the variable id
 func UpdateVariable(workspaceID string, newVariable NewVariable, wg *sync.WaitGroup) {
-	defer wg.Done()
-
 	_, err := client.Variables.Update(ctx, workspaceID, newVariable.ID, tfe.VariableUpdateOptions{
 		Value:       tfe.String(newVariable.Value),
 		Description: tfe.String(newVariable.Description),
@@ -150,6 +149,8 @@ func UpdateVariable(workspaceID string, newVariable NewVariable, wg *sync.WaitGr
 
 	if err != nil {
 		log.Fatal(err)
+	} else {
+		wg.Done()
 	}
 }
 
