@@ -110,6 +110,16 @@ func ListAllVariables(workspaceID string) []*tfe.Variable {
 	return variableList.Items
 }
 
+// CheckIfVariableExistInWs checks if a variable is in a workspace or not
+func CheckIfVariableExistInWs(wsVariableList []*tfe.Variable, variableName string) bool {
+	for _, variable := range wsVariableList {
+		if variable.Key == variableName {
+			return true
+		}
+	}
+	return false
+}
+
 // GetVar gets the variable that matches the variable name in the list of variable
 func GetVar(workspaceID string, varName string) (variable *tfe.Variable, err error) {
 	for _, variable := range ListAllVariables(workspaceID) {

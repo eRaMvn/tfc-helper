@@ -29,12 +29,15 @@ go mod tidy
 go build
 ```
 
+Or you can grab one of the executables under `Releases`
+
 ## Usage
 
-There are two main commands:
+There are three main commands:
 
 - update: To create/update variables in Terraform Cloud
 - delete: To delete variables in Terraform Cloud
+- copy: To copy variables from one workspace to another workspace irrespective of the organization in Terraform Cloud
 
 By default, the tool assumes that the variable will be environment variable. It will not marked as sensitive or as HCL value.
 
@@ -135,6 +138,31 @@ tfc-helper delete --var some_variable
 
 `
 tfc-helper delete -a
+`
+
+**8. Copy all variables from workspace test1 to workspace test2 but ignore the variables that have the same name in test2. Both workspaces are in the same organization:**
+
+The organization have already been set with environment variable TF_CLOUD_ORG_NAME
+`
+tfc-help copy --src-ws test1 --dst-ws test2
+`
+
+OR
+
+`
+tfc-help copy --src-ws test1 --src-org org1 --dst-ws test2
+`
+
+OR If the source workspace and source organization have already been set with environment variables, but the destination organization is different. We can do:
+
+`
+tfc-helper copy --dst-ws test2 --dst-org org2
+`
+
+**9. Copy all variables from workspace test1 to workspace test2 but overwrite the variables that have the same name in test2. Other variables from test1 will still be copied over to test2:**
+
+`
+tfc-help copy --src-ws test1 --dst-ws test2 -r
 `
 
 ## TODO:

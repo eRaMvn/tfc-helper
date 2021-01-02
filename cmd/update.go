@@ -37,21 +37,18 @@ tfc-help update --env -r -w ws-K33Rp -o big-corp
 - Create/Update only new variables found in the current workspace:
 tfc-help update --env -w ws-K33Rp -o big-corp`,
 	Run: func(cmd *cobra.Command, args []string) {
-		// Try to get workspace value from environment variable
-		wsName := os.Getenv(WorkspaceVar)
-		if wsName != "" {
-			workspaceName = wsName
-		} else {
-			workspaceName, _ = cmd.Flags().GetString("workspace")
+		// Try to get value from command line first then try the environment variable
+		workspaceName, _ = cmd.Flags().GetString("workspace")
+		if workspaceName == "" {
+			// Try to get workspace value from environment variable
+			workspaceName = os.Getenv(WorkspaceVar)
 		}
 
-		// Try to get organization value from environment variable
-		orgName := os.Getenv(OrgVar)
-
-		if orgName != "" {
-			organizationName = orgName
-		} else {
-			organizationName, _ = cmd.Flags().GetString("organization")
+		// Try to get value from command line first then try the environment variable
+		organizationName, _ = cmd.Flags().GetString("organization")
+		if organizationName == "" {
+			// Try to get organization value from environment variable
+			organizationName = os.Getenv(OrgVar)
 		}
 
 		keyPairs, _ := cmd.Flags().GetStringSlice("var")
